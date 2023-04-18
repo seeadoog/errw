@@ -20,6 +20,7 @@ type Error interface {
 	WithCallers(callerSkip int) Error
 	WithMeta(key string, val any) Error
 	GetMeta(key string) (val any)
+	Metas() map[string]any
 }
 
 type Caller interface {
@@ -110,6 +111,22 @@ func (w *werror) GetMeta(key string) (val any) {
 		return e.GetMeta(key)
 	}
 	return nil
+}
+
+func (w *werror) Metas() map[string]any {
+	m := w.metas
+	pe, ok := w.err.(*werror)
+	if ok {
+		pm := pe.Metas()
+		if pm == nil {
+			pm = map[string]any{}
+		}
+		for k, v := range m {
+			pm[k] = v
+		}
+		return pm
+	}
+	return m
 }
 
 func getCall(callSkip int) string {

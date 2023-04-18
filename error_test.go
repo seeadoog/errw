@@ -8,17 +8,17 @@ import (
 type error2 = Error
 
 func newRequest() error2 {
-	return NewWithMsgInitCap("new request error", 5)
+	return NewWithMsgInitCap("new request error", 5).WithMeta("2", 1)
 }
 
 func get() error2 {
 	err := newRequest()
-	return err.Wraps("new request error")
+	return err.Wraps("new request error").WithMeta("1", "1").WithMeta("2", "3")
 }
 
 func doIt() error2 {
 	err := get()
-	return err.Wraps("doit: get error").Wraps("ggg")
+	return Wrap(err, "doit: get error").WithMeta("1", "5").Wraps("ggg")
 }
 
 func TestError(t *testing.T) {
@@ -27,6 +27,8 @@ func TestError(t *testing.T) {
 	fmt.Println(err.Error(), "caller:\n", err.Callers(), "info", "raw error", re)
 	fmt.Println(err.Error(), "caller:\n", err.Callers(), "info", "raw error", re)
 	fmt.Println(err.GetMeta("code"), err.GetMeta("message"))
+
+	fmt.Println(err.Metas())
 }
 
 func stackOf() {
